@@ -399,6 +399,8 @@ function guideMul3(){return{title:'💡 Guide — Multiplication 3 chiffres × 1
 function guideDecimal(){return{title:'💡 Guide — Multiplication décimaux',html:`<h3>🎯 Ignorer la virgule, puis replacer</h3><div class="schema">  2.3 × 1.4\n→ 23 × 14 = 322\n→ 1+1 = 2 décimales\n→ Résultat : 3.22</div><h3>🔵 Astuces rapides</h3><ul><li>×0.5 = ÷2</li><li>×0.25 = ÷4</li><li>×1.5 = +moitié</li></ul><div class="highlight">💡 X < 1 multiplié par X < 1 donne toujours un résultat plus petit !</div>`};}
 function guidePourcent(){return{title:'💡 Guide — Calcul de pourcentage',html:`<h3>🎯 Construire depuis 10%</h3><div class="schema">  10% de X = X÷10\n  20% = ×2 de 10%\n  25% = X÷4\n  50% = X÷2\n   5% = 10%÷2</div><div class="example"><div class="example-title">35% de 80</div>10%=8, 30%=24, 5%=4<br>35%=24+4=<strong>28</strong> ✓</div><div class="highlight">💡 Astuce : X% de Y = Y% de X. Choisis le plus simple !</div>`};}
 function guideMul2x2(){return{title:'💡 Guide — Multiplication 2×2 chiffres',html:`<h3>🎯 Méthode FOIL</h3><div class="schema">  45 × 78\n= (40+5)×(70+8)\n= 2800+320+350+40\n= 3510</div><h3>🔵 Arrondir + corriger</h3><div class="example"><div class="example-title">45 × 78</div>45×80=3600<br>Correction : 45×2=90<br>3600−90=<strong>3510</strong> ✓</div><div class="highlight">💡 Estime toujours : 45×78 ≈ 50×80=4000 → résultat ≈ 3500</div><h3>⚡ Cas spéciaux</h3><ul><li>×11 : 34×11=3_7_4=374</li><li>×25 : ÷4×100</li></ul>`};}
+function guidePctVariation(){return{title:'💡 Guide — % d\'une valeur (+ ou −)',html:`<h3>🎯 Principe</h3><p><strong>Base + X%</strong> = Base × (1 + X/100)<br><strong>Base − X%</strong> = Base × (1 − X/100)</p><div class="example"><div class="example-title">38 + 35%</div>35% de 38 = 10%×3 + 5%<br>= 3.8×3 + 1.9 = 11.4 + 1.9 = 13.3<br>38 + 13.3 = <strong>51.3</strong> ✓</div><div class="example"><div class="example-title">67 − 20%</div>20% de 67 = 2 × 10% = 2×6.7 = 13.4<br>67 − 13.4 = <strong>53.6</strong> ✓</div><div class="highlight">💡 Astuce : −50% = diviser par 2. +100% = doubler. +50% = ×1.5</div><h3>🔵 Raccourcis fréquents</h3><div class="schema">  +10% → ×1.1  |  −10% → ×0.9\n  +25% → ×1.25 |  −25% → ×0.75\n  +50% → ×1.5  |  −50% → ÷2\n  +100%→ ×2    |  −100%→ = 0</div>`};}
+function guidePctGrands(){return{title:'💡 Guide — % sur grands nombres',html:`<h3>🎯 Méthode : calculer le delta puis ajuster</h3><div class="example"><div class="example-title">356 + 34%</div>10% de 356 = 35.6<br>30% = 35.6×3 = 106.8<br>4% = 35.6×0.4 = 14.24<br>34% = 106.8+14.24 = 121.04<br>356+121.04 = <strong>477.04</strong> ✓</div><div class="example"><div class="example-title">126 − 62%</div>60% de 126 = 75.6<br>2% de 126 = 2.52<br>62% = 78.12<br>126−78.12 = <strong>47.88</strong> ✓</div><div class="highlight">💡 Raccourci : base × (1 − pct/100) = résultat direct</div><div class="schema">  126 × (1−0.62) = 126 × 0.38\n  ≈ 126 × 0.4 − 126×0.02\n  = 50.4 − 2.52 = 47.88</div>`};}
 
 /* ══════════════════════════════════════════════
    LEVELS
@@ -437,9 +439,14 @@ function getTip(lv,a,op,b,correct){
   if(lv===6){
     return '<h3>💡 '+a+' × '+b+'</h3><div class="schema">  Entiers : '+(a*10).toFixed(0)+' × '+(b*10).toFixed(0)+' = '+(a*10*b*10).toFixed(0)+'\n  Décimales : '+((a.toString().split('.')[1]||'').length)+'+'+((b.toString().split('.')[1]||'').length)+'='+((a.toString().split('.')[1]||'').length+(b.toString().split('.')[1]||'').length)+'\n  Résultat : '+correct+'</div>';
   }
-  if(lv===7){
-    var p10=b/10;
-    return '<h3>💡 '+a+'% de '+b+'</h3><div class="schema">  10% de '+b+' = '+p10+'</div><div class="example"><div class="example-title">Construction</div>'+buildPctSteps(a,b,p10,correct)+'</div><div class="highlight">Retourne : '+a+'% de '+b+' = '+b+'% de '+a+' = '+correct+'</div>';
+  if(lv===7||lv===9){
+    // a op b%  →  delta = a*b/100,  ans = a ± delta
+    var delta=round2(a*b/100);
+    var opSym=op==='+'?'+':'−';
+    return '<h3>💡 '+a+' '+opSym+' '+b+'%</h3>'
+      +'<div class="schema">  '+b+'% de '+a+'\n= 10% × '+(b/10).toFixed(1)+'\n= '+round2(a/10)+' × '+(b/10).toFixed(1)+'\n= '+delta+'</div>'
+      +'<div class="example"><div class="example-title">Résultat</div>'+a+' '+opSym+' '+delta+' = <strong>'+correct+'</strong></div>'
+      +'<div class="highlight">💡 Raccourci : '+a+' × '+(op==='+'?(1+b/100).toFixed(2):(1-b/100).toFixed(2))+' = '+correct+'</div>';
   }
   if(lv===8){
     var da=Math.floor(a/10)*10,ua=a%10,db=Math.floor(b/10)*10,ub=b%10;
@@ -465,25 +472,103 @@ function buildPctSteps(pct,base,p10,correct){
    QUESTION GENERATORS
 ══════════════════════════════════════════════ */
 function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
-function round1(n){return Math.round(n*10)/10;}
+function round2(n){return Math.round(n*100)/100;}
 
 var selectedTables=[2,3,4,5,6,7,8,9];
 var pendingLevel=null;
+var lastQ={a:null,b:null,op:null}; // anti-répétition
 
 function genQ(lv){
-  var a,b,op,ans,html;
-  switch(lv){
-    case 1: op=Math.random()<.5?'+':'-';a=ri(10,99);b=ri(10,99);if(op==='-'&&b>a){var t=a;a=b;b=t;}ans=op==='+'?a+b:a-b;break;
-    case 2: op=Math.random()<.5?'+':'-';a=ri(100,999);b=ri(100,999);if(op==='-'&&b>a){var t=a;a=b;b=t;}ans=op==='+'?a+b:a-b;break;
-    case 3: op='×';b=selectedTables[ri(0,selectedTables.length-1)];a=ri(2,9);ans=a*b;break;
-    case 4: op='×';b=selectedTables[ri(0,selectedTables.length-1)];a=ri(10,99);ans=a*b;break;
-    case 5: op='×';b=selectedTables[ri(0,selectedTables.length-1)];a=ri(100,999);ans=a*b;break;
-    case 6: op='×';var ch=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.5,2.5];a=ch[ri(0,ch.length-1)];b=ch[ri(0,ch.length-1)];ans=round1(a*b);break;
-    case 7: var pcts=[5,10,15,20,25,30,40,50,60,75];a=pcts[ri(0,pcts.length-1)];b=ri(2,20)*10;op='%';ans=round1(a*b/100);break;
-    case 8: op='×';b=selectedTables.length>0?selectedTables[ri(0,selectedTables.length-1)]:ri(11,99);a=ri(11,99);ans=a*b;break;
+  var a,b,op,ans,html,tries=0;
+  do {
+    tries++;
+    a=null;b=null;op=null;ans=null;
+    switch(lv){
+      case 1:
+        op=Math.random()<.5?'+':'-';
+        a=ri(10,99);b=ri(10,99);
+        if(op==='-'&&b>a){var t=a;a=b;b=t;}
+        ans=op==='+'?a+b:a-b;
+        break;
+      case 2:
+        op=Math.random()<.5?'+':'-';
+        a=ri(100,999);b=ri(100,999);
+        if(op==='-'&&b>a){var t=a;a=b;b=t;}
+        ans=op==='+'?a+b:a-b;
+        break;
+      case 3:
+        op='×';
+        b=selectedTables[ri(0,selectedTables.length-1)];
+        a=ri(2,9);ans=a*b;
+        break;
+      case 4:
+        op='×';
+        b=selectedTables[ri(0,selectedTables.length-1)];
+        a=ri(10,99);ans=a*b;
+        break;
+      case 5:
+        op='×';
+        b=selectedTables[ri(0,selectedTables.length-1)];
+        a=ri(100,999);ans=a*b;
+        break;
+      case 6:
+        // Décimaux variés : petits (0.x), moyens (1.x–4.x), grands (5–9.x)
+        op='×';
+        var pool6=[
+          [0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9],       // petits
+          [1.2,1.5,1.8,2.0,2.4,2.5,3.0,3.5,3.6,4.0], // moyens
+          [5.0,6.0,6.5,7.0,7.5,8.0,9.0,9.5]           // grands
+        ];
+        var cat1=ri(0,2), cat2=ri(0,2);
+        var g1=pool6[cat1],g2=pool6[cat2];
+        a=g1[ri(0,g1.length-1)];
+        b=g2[ri(0,g2.length-1)];
+        ans=round2(a*b);
+        break;
+      case 7:
+        // 38 − 35%  ou  67 + 98%  → résultat = base ± base*pct/100
+        var pcts7=[5,10,15,20,25,30,40,50,60,75,80,90,100];
+        op=Math.random()<.5?'+':'-';
+        b=pcts7[ri(0,pcts7.length-1)]; // b = pourcentage
+        a=ri(10,99)*ri(1,3);           // a = valeur de base variée
+        if(a>200) a=ri(20,150);
+        var delta7=round2(a*b/100);
+        ans=round2(op==='+'?a+delta7:a-delta7);
+        break;
+      case 8:
+        // 2 chiffres × 2 chiffres — les deux facteurs sont 11–99
+        op='×';
+        a=ri(12,99);
+        b=ri(12,99);
+        // évite les cas triviaux (multiples de 10)
+        if(a%10===0) a+=ri(1,5);
+        if(b%10===0) b+=ri(1,5);
+        ans=a*b;
+        break;
+      case 9:
+        // 126 − 62%  ou  356 + 34%  → résultat arrondi
+        var pcts9=[5,10,15,20,25,30,33,40,50,60,66,75,80,90];
+        op=Math.random()<.5?'+':'-';
+        b=pcts9[ri(0,pcts9.length-1)];
+        a=ri(10,99)*ri(2,10); // bases variées 20–990
+        if(a<50) a+=ri(50,100);
+        var delta9=round2(a*b/100);
+        ans=round2(op==='+'?a+delta9:a-delta9);
+        break;
+    }
+  } while(tries<8 && a===lastQ.a && b===lastQ.b && op===lastQ.op);
+
+  lastQ={a:a,b:b,op:op};
+
+  // HTML d'affichage
+  if(lv===7||lv===9){
+    // ex : "38 − 35%" ou "67 + 98%"
+    var opSym=op==='+'?'+':'-';
+    html=a+' <span class="q-op">'+opSym+'</span> '+b+'<span class="q-op">%</span> <span class="q-mark">= ?</span>';
+  } else {
+    html=a+' <span class="q-op">'+op+'</span> '+b+' <span class="q-mark">= ?</span>';
   }
-  html=(lv===7)?a+'<span class="q-op">%</span> de '+b+' <span class="q-mark">= ?</span>':a+' <span class="q-op">'+op+'</span> '+b+' <span class="q-mark">= ?</span>';
-  return{html:html,ans:ans,a:a,b:b,op:(lv===7?'%':op)};
+  return{html:html,ans:ans,a:a,b:b,op:op};
 }
 
 /* ══════════════════════════════════════════════
@@ -556,6 +641,7 @@ function start(lv){
 }
 function launchGame(lv){
   level=lv;qIdx=0;sessionOk=0;
+  lastQ={a:null,b:null,op:null};
   document.getElementById('lvl-pill').textContent=LEVELS[lv-1].name;
   updateLiveScore();
   showScreen('s-game');
@@ -774,9 +860,10 @@ LEVELS=[
   {id:3,icon:'✖️',name:'Niveau 3',desc:'Multiplication — tables simples',tag:'Difficile',tagClass:'t3',guide:guideMul1()},
   {id:4,icon:'🔣',name:'Niveau 4',desc:'Multiplication 2 chiffres × table',tag:'Expert',tagClass:'t4',guide:guideMul2()},
   {id:5,icon:'🧩',name:'Niveau 5',desc:'Multiplication 3 chiffres × table',tag:'Expert',tagClass:'t4',guide:guideMul3()},
-  {id:6,icon:'🔢',name:'Niveau 6',desc:'Multiplication décimaux',tag:'Expert',tagClass:'t4',guide:guideDecimal()},
-  {id:7,icon:'📊',name:'Niveau 7',desc:'Calcul de pourcentage',tag:'Expert',tagClass:'t4',guide:guidePourcent()},
-  {id:8,icon:'🔥',name:'Niveau 8',desc:'Multiplication 2×2 chiffres (45×78)',tag:'Maître',tagClass:'t4',guide:guideMul2x2()}
+  {id:6,icon:'🔢',name:'Niveau 6',desc:'Multiplication décimaux variés',tag:'Expert',tagClass:'t4',guide:guideDecimal()},
+  {id:7,icon:'📊',name:'Niveau 7',desc:'Valeur ± pourcentage (ex: 38+35%)',tag:'Expert',tagClass:'t4',guide:guidePctVariation()},
+  {id:8,icon:'🔥',name:'Niveau 8',desc:'Multiplication 2×2 chiffres (ex: 45×78)',tag:'Maître',tagClass:'t4',guide:guideMul2x2()},
+  {id:9,icon:'🎯',name:'Niveau 9',desc:'Grands nombres ± % (ex: 356+34%)',tag:'Maître',tagClass:'t4',guide:guidePctGrands()}
 ];
 renderSettings();
 renderHome();
